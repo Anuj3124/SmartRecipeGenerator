@@ -4,7 +4,11 @@ import spacy
 
 app = Flask(__name__, template_folder='.')
 
-nlp = spacy.load("en_core_web_sm")
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    download("en_core_web_sm")
+    nlp = spacy.load("en_core_web_sm")
 
 # Use the same ingredients list
 ALL_INGREDIENTS = sorted([
