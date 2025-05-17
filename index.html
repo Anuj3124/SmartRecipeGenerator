@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Smart Recipe Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f8f8;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            text-align: center;
+            background: #28a745;
+            color: white;
+            padding: 20px 0;
+            margin: 0 0 20px 0;
+            font-size: 32px;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        p.description {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .ingredients {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .ingredients label {
+            width: 150px;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 16px;
+            background: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #218838;
+        }
+
+        .recipes {
+            margin-top: 30px;
+        }
+
+        .recipe {
+            background: #ffffff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .recipe img {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        a button {
+            margin-left: 10px;
+            background: #007bff;
+        }
+
+        a button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Smart Recipe Generator</h1>
+
+    <div class="container">
+        <p class="description">
+            Welcome to the Smart Recipe Finder! Select the ingredients you have at home, and we'll suggest recipes you can make.
+            We use <strong>TheMealDB API</strong> to fetch delicious, easy-to-make recipes tailored to your kitchen inventory.
+        </p>
+
+        <h2>Select Your Ingredients</h2>
+        <div class="ingredients" id="ingredient-list">
+            {% for ing in ingredients %}
+                <label><input type="checkbox" value="{{ ing }}"> {{ ing }}</label>
+            {% endfor %}
+        </div>
+
+        <button onclick="fetchRecipes()">Find Recipes</button>
+        <a href="/nlp"><button>Search Using NLP</button></a>
+
+        <div class="recipes" id="recipes"></div>
+    </div>
+
+    <script>
+        function getSelectedIngredients() {
+            const checkboxes = document.querySelectorAll('#ingredient-list input[type="checkbox"]');
+            return Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+        }
+
+        async function fetchRecipes() {
+            const selectedIngredients = getSelectedIngredients();
+
+            const res = await fetch('/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ selectedIngredients })
+            });
+
+            const data = await res.json();
+            const recipesDiv = document.getElementById('recipes');
+            recipesDiv.innerHTML = '';
+
+            if (!data.recipes.length) {
+                recipesDiv.innerHTML = '<p>No recipes found. Try fewer or different ingredients.</p>';
+                return;
+            }
+
+            data.recipes.forEach(recipe => {
+                const div = document.createElement('div');
+                div.className = 'recipe';
+                div.innerHTML = `
+                    <h3>${recipe.title}</h3>
+                    <img src="${recipe.image}" alt="${recipe.title}">
+                    <p><strong>Ingredients:</strong> ${recipe.ingredient_list.join(', ')}</p>
+                    <p><strong>Instructions:</strong><br>${recipe.instructions}</p>
+                `;
+                recipesDiv.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>

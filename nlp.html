@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NLP Recipe Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 0;
+            margin: 0;
+            background: #f0f0f5;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            background: #28a745;
+            color: white;
+            padding: 20px 0;
+            margin: 0;
+            font-size: 30px;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        p.description {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        h2 {
+            margin-bottom: 12px;
+            color: #2c3e50;
+        }
+
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            margin-right: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 16px;
+            background-color: #28a745;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .tag-list {
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .recipes {
+            margin-top: 25px;
+        }
+
+        .recipe {
+            background: #fafafa;
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+        }
+
+        .recipe img {
+            width: 200px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #28a745;
+            font-size: 16px;
+            text-decoration: none;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Smart Recipe Generator - NLP Search</h1>
+
+    <div class="container">
+        <a href="/" class="back-link">&#8592; Back</a>
+        <p class="description">
+            Welcome to the Natural Language Recipe Search! You can simply type what you're looking for in your own words —
+            like <em>"with bread and eggs"</em>. This tool uses TheMealDB API and intelligent text analysis
+            to find matching recipes based on your request.
+        </p>
+
+        <h2>Search Recipes Using Natural Language</h2>
+        <input type="text" id="query" placeholder="e.g. with bread and eggs">
+        <button onclick="fetchNLPRecipes()">Search</button>
+
+        <div class="tag-list">
+            Included: <span id="included-list">None</span><br>
+            Excluded: <span id="excluded-list">None</span>
+        </div>
+
+        <div id="recipes" class="recipes"></div>
+    </div>
+
+    <script>
+        async function fetchNLPRecipes() {
+            const query = document.getElementById('query').value;
+
+            const res = await fetch('/nlp_search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query })
+            });
+
+            const data = await res.json();
+            const recipesDiv = document.getElementById('recipes');
+            recipesDiv.innerHTML = '';
+
+            document.getElementById('included-list').textContent = data.included.length > 0 ? data.included.join(', ') : 'None';
+            document.getElementById('excluded-list').textContent = data.excluded.length > 0 ? data.excluded.join(', ') : 'None';
+
+            if (data.recipes.length === 0) {
+                recipesDiv.innerHTML = '<p>No recipes found.</p>';
+            } else {
+                data.recipes.forEach(recipe => {
+                    const div = document.createElement('div');
+                    div.className = 'recipe';
+                    div.innerHTML = `
+                        <h4>${recipe.title}</h4>
+                        <img src="${recipe.image}" alt="${recipe.title}"><br><br>
+                        <strong>Ingredients:</strong> ${recipe.ingredient_list.join(', ')}<br>
+                        <strong>Instructions:</strong>
+                        <p>${recipe.instructions}</p>
+                    `;
+                    recipesDiv.appendChild(div);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
