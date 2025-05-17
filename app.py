@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import requests
 import spacy
+from spacy.cli import download
 
 app = Flask(__name__, template_folder='.')
 
