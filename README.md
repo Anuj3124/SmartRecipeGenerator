@@ -72,5 +72,8 @@ smart-recipe-gen/
 
 ---
 
+## Deploy
+Check it out : [(https://smartrecipegenerator.onrender.com)](https://smartrecipegenerator.onrender.com)
+
 ## License
 Feel free to use and modify as needed.
