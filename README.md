@@ -54,11 +54,11 @@ Smart Recipe Finder is a simple yet powerful web application that allows users t
 ## Project Structure
 
 ```
-smart-recipe-finder/
+smart-recipe-gen/
 ├── app.py
 ├── index.html
 ├── nlp.html
-├── requirements.txt
+├── req.txt
 ```
 
 ---
